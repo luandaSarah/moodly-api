@@ -6,4 +6,4 @@ controllers:
 
 api_login:
   path: /api/login
-  methods: [POST]
+  methods: POST

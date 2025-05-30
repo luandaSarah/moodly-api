@@ -9,7 +9,7 @@ security:
     app_user_provider:
       entity:
         class: App\Entity\User
-        property: email
+        property: username
 
   firewalls:
     dev:
@@ -20,15 +20,16 @@ security:
       pattern: ^/api/login # s'active que sur les requêtes qui commencent par /api/login
       stateless: true
       json_login: # login en JSON
-        username_path: email #on spécifie à symfony que la clé qui contiendra l'identifiant n'est pas username mais email
         check_path: /api/login # path qui reçoit les identifiants
         success_handler: lexik_jwt_authentication.handler.authentication_success # retourne token JWT
         failure_handler: lexik_jwt_authentication.handler.authentication_failure # retourne une erreur
 
     api:
-      pattern: ^/api
-      stateless: true
-      jwt: ~
+     pattern: ^/api
+     stateless: true
+     provider: app_user_provider
+     jwt: ~
+
 
     main:
       lazy: true
@@ -45,6 +46,7 @@ security:
   access_control:
     - { path: ^/api/login, roles: PUBLIC_ACCESS }
     - { path: ^/api/admin, roles: ROLE_ADMIN }
+    - { path: ^/api, roles: ROLE_USER }
 
 when@test:
   security:

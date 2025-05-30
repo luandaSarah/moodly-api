@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
-use App\Entity\Traits\DateTimeTraits;
-use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use App\Entity\Traits\DateTimeTraits;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -19,15 +20,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['common:index'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['profile:show','admin:show'])]
     private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups(['admin:show', 'admin:index'])]
     private array $roles = [];
 
     /**
@@ -37,9 +41,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['common:index'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['common:index'])]
     private ?string $name = null;
 
     /**
@@ -48,6 +54,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string|null
      */
     #[ORM\Column(length: 255, options: ['default' => 'active'])]
+    #[Groups(['admin:show', 'admin:index'])]
     private ?string $status = null;
 
 
@@ -83,7 +90,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string) $this->username;
     }
 
     /**
