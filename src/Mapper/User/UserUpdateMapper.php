@@ -1,24 +1,25 @@
 <?php
 
-namespace App\Mapper;
+namespace App\Mapper\User;
 
-use App\Dto\Interfaces\UserRequestInterface;
-use App\Entity\User;
+use App\Entity\UserInfo;
+use App\Dto\User\UserUpdateDto;
+use App\Dto\User\UserRegisterDto;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UserMapper
+class UserUpdateMapper
 {
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
     ) {}
 
-    public function map(UserRequestInterface $dto, ?User $user = null): User
+    public function map(UserUpdateDto $dto, UserInfo $user ): UserInfo
     {
-        $user ??= new User;
+        
 
-        if (null !== $dto->getUsername()) {
-            $user->setUsername(
-                $dto->getUsername()
+        if (null !== $dto->getPseudo()) {
+            $user->setPseudo(
+                $dto->getPseudo()
             );
         }
 
@@ -42,6 +43,20 @@ class UserMapper
                 )
             );
         }
+
+        
+        if (null !== $dto->getAvatarUrl()) {
+            $user->setAvatarUrl(
+                $dto->getAvatarUrl()
+            );
+        }
+
+        if (null !== $dto->getBio()) {
+            $user->setBio(
+                $dto->getBio()
+            );
+        }
+
 
         return $user;
     }

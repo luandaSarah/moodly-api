@@ -4,7 +4,7 @@ namespace App\Dto\Interfaces;
 
 interface UserRequestInterface
 {
-    public function getUsername(): ?string;
+    public function getPseudo(): ?string;
 
     public function getName(): ?string;
 

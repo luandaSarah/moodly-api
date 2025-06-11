@@ -14,7 +14,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class UserInfo extends User
 {
 
-
+    
     #[ORM\Column(length: 2083, nullable: true)]
     #[Groups(['common:show'])]
     private ?string $avatarUrl = null;
@@ -24,11 +24,11 @@ class UserInfo extends User
     private ?string $bio = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['common:show'])]
+    #[Groups(['common:show', 'common:index'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['common:show'])]
+    #[Groups(['common:show', 'common:index'])]
     private ?string $pseudo = null;
 
     public function getAvatarUrl(): ?string
@@ -65,15 +65,6 @@ class UserInfo extends User
 
         $this->name = $name;
 
-        return $this;
-    }
-
-    #[ORM\prePersist]
-    public function setDefaultName(): static
-    {
-        if (!$this->name) {
-            $this->name = $this->pseudo;
-        }
         return $this;
     }
 

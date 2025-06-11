@@ -40,6 +40,7 @@ class AppFixtures extends Fixture
                 )
             )
             ->setPseudo('admin1')
+            ->setName('Admin Admin')
             ->setAvatarUrl('https://i.pinimg.com/736x/53/b1/c0/53b1c07490f8a3290a9b988ff727d236.jpg')
             ->setBio($this->faker->sentence())
         ;

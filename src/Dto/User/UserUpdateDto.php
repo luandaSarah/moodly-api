@@ -2,23 +2,23 @@
 
 namespace App\Dto\User;
 
-use App\Entity\User;
+use App\Entity\UserInfo;
 use App\Dto\Interfaces\UserRequestInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[UniqueEntity(
-    fields: ['username'],
-    entityClass: User::class,
-    message: 'Ce nom d\'utilisateur est déjà pris'
+    fields: ['pseudo'],
+    entityClass: UserInfo::class,
+    message: 'Ce pseudo est déjà pris'
 )]
 
 #[UniqueEntity(
     fields: ['email'],
-    entityClass: User::class,
+    entityClass: UserInfo::class,
     message: 'Ce mail est déjà pris'
 )]
-class UserUpdateDto implements UserRequestInterface
+class UserUpdateDto 
 {
     public function __construct(
 
@@ -26,14 +26,14 @@ class UserUpdateDto implements UserRequestInterface
         #[Assert\Length(
             min: 3,
             max: 30,
-            minMessage: 'Le nom d\'utilisateur doit contenir au moins {{limit}} caractères',
-            maxMessage: 'Le nom d\'utilisateur ne doit pas contenir plus de {{limit}} caractères',
+            minMessage: 'Le pseudo doit contenir au moins {{limit}} caractères',
+            maxMessage: 'Le pseudo ne doit pas contenir plus de {{limit}} caractères',
         )]
         #[Assert\Regex(
             pattern: '/^[a-zA-Z0-9._]{3,30}$/',
-            message: 'Le nom d\'utilisateur ne peut contenir que des lettres(minuscules et majuscules), des chiffres et les caractères spécieux \'.\' et \'_\''
+            message: 'Le pseudo ne peut contenir que des lettres(minuscules et majuscules), des chiffres et les caractères spécieux \'.\' et \'_\''
         )]
-        private readonly ?string $username = null,
+        private readonly ?string $pseudo = null,
 
         #[Assert\Length(
             min: 3,
@@ -67,14 +67,26 @@ class UserUpdateDto implements UserRequestInterface
         )]
         private readonly ?string $confirmPassword = null,
 
+        #[Assert\Url(
+            message: 'Cette Url n\'est pas valide'
+        )]
+        private readonly ?string $avatarUrl = null,
+
+        #[Assert\Length(
+            min: 0,
+            max: 180,
+            maxMessage: 'La bio ne doit pas contenir plus de {{limit}} caractères',
+        )]
+        private readonly ?string $bio = null,
+
     ) {}
 
     /**
-     * Get the value of username
+     * Get the value of pseudo
      */
-    public function getUsername(): ?string
+    public function getPseudo(): ?string
     {
-        return $this->username;
+        return $this->pseudo;
     }
 
     /**
@@ -107,5 +119,21 @@ class UserUpdateDto implements UserRequestInterface
     public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
+    }
+
+    /**
+     * Get the value of avatarUrl
+     */
+    public function getAvatarUrl(): ?string
+    {
+        return $this->avatarUrl;
+    }
+
+    /**
+     * Get the value of bio
+     */
+    public function getBio(): ?string
+    {
+        return $this->bio;
     }
 }
