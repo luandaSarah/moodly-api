@@ -2,16 +2,23 @@
 
 namespace App\Entity;
 
+use App\Entity\UserInfo;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use App\Entity\Traits\DateTimeTraits;
+use Doctrine\ORM\Mapping\InheritanceType;
+use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[InheritanceType('JOINED')]
+#[DiscriminatorColumn(name: 'discr', type: 'string')]
+#[DiscriminatorMap(['user' => User::class, 'userInfo' => UserInfo::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
+// #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -24,7 +31,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['profile:show','admin:show'])]
+    #[Groups(['profile:show', 'admin:show'])]
     private ?string $email = null;
 
     /**
@@ -40,14 +47,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['common:index'])]
-    private ?string $username = null;
-
-    #[ORM\Column(length: 255)]
-    #[Groups(['common:index'])]
-    private ?string $name = null;
-
     /**
      * propriété status
      * si aucune valeur n'est persisté, ORM persistera 'active' par defaut
@@ -56,8 +55,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, options: ['default' => 'active'])]
     #[Groups(['admin:show', 'admin:index'])]
     private ?string $status = null;
-
-
 
     public function __construct()
     {
@@ -90,7 +87,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->username;
+        return (string) $this->email;
     }
 
     /**
@@ -139,29 +136,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
+    // public function getUsername(): ?string
+    // {
+    //     return $this->username;
+    // }
 
-    public function setUsername(string $username): static
-    {
-        $this->username = $username;
+    // public function setUsername(string $username): static
+    // {
+    //     $this->username = $username;
 
-        return $this;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): static
-    {
-        $this->name = $name;
-
-        return $this;
-    }
+    //     return $this;
+    // }
 
     public function getStatus(): ?string
     {
@@ -174,4 +159,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
 }

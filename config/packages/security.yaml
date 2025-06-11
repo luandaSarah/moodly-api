@@ -9,31 +9,32 @@ security:
     app_user_provider:
       entity:
         class: App\Entity\User
-        property: username
-
+        property: email
   firewalls:
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
 
-    login:
-      pattern: ^/api/login # s'active que sur les requêtes qui commencent par /api/login
-      stateless: true
+    main:
+      # pattern: ^/api/login # s'active que sur les requêtes qui commencent par /api/login
+      # stateless: true
+      # provider: app_user_provider
       json_login: # login en JSON
-        check_path: /api/login # path qui reçoit les identifiants
+        check_path: auth # path qui reçoit les identifiants
+        # username_path: email
+        # password_path: password
         success_handler: lexik_jwt_authentication.handler.authentication_success # retourne token JWT
         failure_handler: lexik_jwt_authentication.handler.authentication_failure # retourne une erreur
-
     api:
-     pattern: ^/api
-     stateless: true
-     provider: app_user_provider
-     jwt: ~
+      pattern: ^/api/
+      stateless: true
+      jwt: ~
 
 
-    main:
-      lazy: true
-      provider: app_user_provider
+
+    # main:
+    #   lazy: true
+    #   provider: app_user_provider
 
       # activate different ways to authenticate
       # https://symfony.com/doc/current/security.html#the-firewall
@@ -45,6 +46,7 @@ security:
   # Note: Only the *first* access control that matches will be used
   access_control:
     - { path: ^/api/login, roles: PUBLIC_ACCESS }
+    - { path: ^/api/register, roles: PUBLIC_ACCESS }
     - { path: ^/api/admin, roles: ROLE_ADMIN }
     - { path: ^/api, roles: ROLE_USER }
 

@@ -9,7 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 trait DateTimeTraits
 {
-    #[ORM\Column]
+
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
@@ -34,10 +35,12 @@ trait DateTimeTraits
      *
      * @return self
      */
-    public function setCreatedAt(?\DateTimeImmutable $createdAt): self
+    #[ORM\PrePersist]
+    public function setCreatedAt(): self
     {
-        $this->createdAt = $createdAt;
-
+         if (!$this->createdAt) {
+            $this->createdAt = new \DateTimeImmutable();
+        }
         return $this;
     }
 
@@ -58,42 +61,13 @@ trait DateTimeTraits
      *
      * @return self
      */
-    public function setUpdateAt(?\DateTimeImmutable $updateAt): self
-    {
-        $this->updateAt = $updateAt;
-
-        return $this;
-    }
-
-
-    /**
-     * Cette methode génére automatiquement la date de création à la persistance de notre entité en bdd 
-     * grace à au LifeCycleCallback : PrePersist
-     * @return static
-     */
-    #[ORM\PrePersist] 
-    public function autosetCreatedAt(): static
-    {
-        if (!$this->createdAt) {
-            $this->createdAt = new \DateTimeImmutable();
-        }
-        return $this;
-    }
-
-     /**
-     * Cette methode génére automatiquement la date de mise à jour à la persistance de notre entité en bdd
-     *grace à au LifeCycleCallback : PreUpdate
-     * @return static
-     */
-
     #[ORM\PreUpdate]
-    public function autosetUpdatedAt(): static
+    public function setUpdateAt(): self
     {
         if (!$this->updatedAt) {
             $this->updatedAt = new \DateTimeImmutable();
         }
         return $this;
     }
-
 
 }
