@@ -3,8 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\UserInfo;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Dto\Filter\PaginationFilterDto;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<UserInfo>
@@ -14,6 +15,40 @@ class UserInfoRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, UserInfo::class);
+    }
+
+    public function countAll(): int
+    {
+        return $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->getQuery()
+            ->getSingleScalarResult(); //renvoie juste un nombre
+    }
+
+
+    /**
+     * Summary of findPaginate
+     * @param \App\Dto\Filter\PaginationFilterDto $filter
+     * @return array{items: mixed, meta: array{pages: float, total: mixed}}
+     */
+    public function findPaginate(PaginationFilterDto $filter): array //retournera toujours un tableau vide
+    {
+        $offset = ($filter->getPage() - 1) * $filter->getLimit();
+        $query = $this->createQueryBuilder('a') //createQueryBuilder à partient à la class parente ServiceEntityRepository
+            ->setMaxResults($filter->getLimit())
+            ->setFirstResult($offset);
+
+        $total = $this->countAll();
+
+        return [
+            'meta' => [
+                'pages' => ceil($total / $filter->getLimit()),
+                'total' => $total
+            ],
+            'items' => $query->getQuery()->getResult(), //resultat de la requetes
+
+            //information utile du resultat
+        ];
     }
 
     //    /**

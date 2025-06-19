@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Dto\Filter\PaginationFilterDto;
 use App\Entity\UserInfo;
 use App\Dto\User\UserUpdateDto;
 use App\Dto\User\UserRegisterDto;
@@ -16,6 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 
 #[Route('api', name: 'api_users_')]
 class UserController extends AbstractController
@@ -29,17 +31,18 @@ class UserController extends AbstractController
 
     ) {}
 
-
     /**
      * Récupere tout les Users
      *
      * @return JsonResponse
      */
     #[Route('/users', 'index', methods: ['GET'])]
-    public function index(): JsonResponse
-    {
+    public function index(
+        #[MapQueryString]
+        PaginationFilterDto $paginationDto,
+    ): JsonResponse {
         return $this->json(
-            $this->userInfoRepository->findAll(),
+            $this->userInfoRepository->findPaginate($paginationDto),
             Response::HTTP_OK,
             context: [
                 'groups' => ['common:index'],
@@ -119,7 +122,7 @@ class UserController extends AbstractController
     }
 
 
-    #[Route('/profile', name: 'update', methods: ['POST'])]
+    #[Route('/profile', name: 'update', methods: ['PATCH'])]
     public function update(
         #[MapRequestPayload]
         UserUpdateDto $dto,

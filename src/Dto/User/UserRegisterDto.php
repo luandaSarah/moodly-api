@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     entityClass: UserInfo::class,
     message: 'Ce mail est déjà pris'
 )]
-class UserRegisterDto 
+class UserRegisterDto
 {
     public function __construct(
 
