@@ -10,7 +10,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 /**
  * @extends ServiceEntityRepository<UserInfo>
  */
-class UserInfoRepository extends ServiceEntityRepository
+class UserInfoRepository extends ServiceEntityRepository 
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -26,17 +26,25 @@ class UserInfoRepository extends ServiceEntityRepository
     }
 
 
+    // public function findUser()
+    // {
+    //     return $this->createQueryBuilder('u')
+    //     ->select('')
+    // }
     /**
      * Summary of findPaginate
      * @param \App\Dto\Filter\PaginationFilterDto $filter
      * @return array{items: mixed, meta: array{pages: float, total: mixed}}
      */
-    public function findPaginate(PaginationFilterDto $filter): array //retournera toujours un tableau vide
+    public function findPaginate(PaginationFilterDto $filter): array 
     {
         $offset = ($filter->getPage() - 1) * $filter->getLimit();
-        $query = $this->createQueryBuilder('a') //createQueryBuilder à partient à la class parente ServiceEntityRepository
+        $query = $this->createQueryBuilder('a') 
             ->setMaxResults($filter->getLimit())
-            ->setFirstResult($offset);
+            ->setFirstResult($offset)
+           
+            ;
+            
 
         $total = $this->countAll();
 
@@ -45,9 +53,9 @@ class UserInfoRepository extends ServiceEntityRepository
                 'pages' => ceil($total / $filter->getLimit()),
                 'total' => $total
             ],
-            'items' => $query->getQuery()->getResult(), //resultat de la requetes
+            'items' => $query->getQuery()->getResult(), 
 
-            //information utile du resultat
+        
         ];
     }
 
@@ -61,6 +69,7 @@ class UserInfoRepository extends ServiceEntityRepository
     //            ->setParameter('val', $value)
     //            ->orderBy('u.id', 'ASC')
     //            ->setMaxResults(10)
+    //            ->join("a.test", 't')
     //            ->getQuery()
     //            ->getResult()
     //        ;

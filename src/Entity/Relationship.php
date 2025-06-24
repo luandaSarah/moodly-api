@@ -14,7 +14,7 @@ class Relationship
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['common:index'])]
+    #[Groups(['relationship:index'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'relationships')]

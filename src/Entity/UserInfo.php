@@ -16,9 +16,9 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class UserInfo extends User
 {
 
-    
+
     #[ORM\Column(length: 2083, nullable: true)]
-    #[Groups(['common:show'])]
+    #[Groups(['common:show', 'common:index','relationship:index'])]
     private ?string $avatarUrl = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -26,11 +26,11 @@ class UserInfo extends User
     private ?string $bio = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['common:show', 'common:index'])]
+    #[Groups(['common:show', 'common:index','relationship:index'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['common:show', 'common:index'])]
+    #[Groups(['common:show', 'common:index','relationship:index'])]
     private ?string $pseudo = null;
 
     /**
@@ -39,10 +39,17 @@ class UserInfo extends User
     #[ORM\OneToMany(targetEntity: Relationship::class, mappedBy: 'following', orphanRemoval: true)]
     private Collection $relationships;
 
+    /**
+     * @var Collection<int, Moodboard>
+     */
+    #[ORM\OneToMany(targetEntity: Moodboard::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $moodboards;
+
     public function __construct()
     {
         parent::__construct();
         $this->relationships = new ArrayCollection();
+        $this->moodboards = new ArrayCollection();
     }
 
     public function getAvatarUrl(): ?string
@@ -118,6 +125,36 @@ class UserInfo extends User
             // set the owning side to null (unless already changed)
             if ($relationship->getFollowing() === $this) {
                 $relationship->setFollowing(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Moodboard>
+     */
+    public function getMoodboards(): Collection
+    {
+        return $this->moodboards;
+    }
+
+    public function addMoodboard(Moodboard $moodboard): static
+    {
+        if (!$this->moodboards->contains($moodboard)) {
+            $this->moodboards->add($moodboard);
+            $moodboard->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMoodboard(Moodboard $moodboard): static
+    {
+        if ($this->moodboards->removeElement($moodboard)) {
+            // set the owning side to null (unless already changed)
+            if ($moodboard->getUser() === $this) {
+                $moodboard->setUser(null);
             }
         }
 

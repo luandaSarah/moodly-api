@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Dto\Filter\PaginationFilterDto;
 use App\Entity\UserInfo;
 use App\Entity\Relationship;
 use App\Repository\RelationshipRepository;
@@ -13,6 +14,7 @@ use App\Mapper\Relationship\RelationshipCreateMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 
 #[Route('api', name: 'api_relationship_')]
 class RelationshipController extends AbstractController
@@ -29,16 +31,18 @@ class RelationshipController extends AbstractController
      *
      * @return JsonResponse
      */
-    #[Route('/profile/followersIndex', name: 'profile_followers_index', methods: ['GET'])]
-    public function profileFollowers(): JsonResponse
-    {
+    #[Route('/profile/followers', name: 'profile_followers_index', methods: ['GET'])]
+    public function profileFollowers(
+        #[MapQueryString]
+        PaginationFilterDto $paginationDto,
+    ): JsonResponse {
         $user = $this->getUser();
 
         return $this->json(
-            $this->relationshipRepository->findBy(['followed' => $user]), //les utilisateurs qui following users donc users=followed
+            $this->relationshipRepository->findPaginateFollowers($paginationDto, $user), //les utilisateurs qui following users donc users=followed
             Response::HTTP_OK,
             context: [
-                'groups' => ['common:index', 'followers:index'],
+                'groups' => ['relationship:index', 'followers:index'],
             ],
         );
     }
@@ -50,15 +54,17 @@ class RelationshipController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/profile/following', name: 'profile_following_index', methods: ['GET'])]
-    public function profileFollowingIndex(): JsonResponse
-    {
+    public function profileFollowingIndex(
+        #[MapQueryString]
+        PaginationFilterDto $paginationDto,
+    ): JsonResponse {
         $user = $this->getUser();
 
         return $this->json(
-            $this->relationshipRepository->findBy(['following' => $user]), //les utilisateurs qui following users donc users=followed
+            $this->relationshipRepository->findPaginateFollowing($paginationDto, $user), //les utilisateurs qui following users donc users=followed
             Response::HTTP_OK,
             context: [
-                'groups' => ['common:index', 'following:index'],
+                'groups' => ['relationship:index', 'following:index'],
             ],
         );
     }
@@ -71,13 +77,16 @@ class RelationshipController extends AbstractController
      */
     #[Route('/users/{id}/followers', name: 'users_followers_index', methods: ['GET'])]
 
-    public function usersFollowersIndex(UserInfo $user): JsonResponse
-    {
+    public function usersFollowersIndex(
+        UserInfo $user,
+        #[MapQueryString]
+        PaginationFilterDto $paginationDto,
+    ): JsonResponse {
         return $this->json(
-            $this->relationshipRepository->findBy(['followed' => $user]), //les utilisateurs qui following users donc users=followed
+            $this->relationshipRepository->findPaginateFollowers($paginationDto, $user), //les utilisateurs qui following users donc users=followed
             Response::HTTP_OK,
             context: [
-                'groups' => ['common:index', 'followers:index'],
+                'groups' => ['relationship:index', 'followers:index'],
             ],
         );
     }
@@ -89,13 +98,16 @@ class RelationshipController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/users/{id}/following', name: 'users_following_index', methods: ['GET'])]
-    public function usersFollowingIndex(UserInfo $user): JsonResponse
-    {
+    public function usersFollowingIndex(
+        UserInfo $user,
+        #[MapQueryString]
+        PaginationFilterDto $paginationDto,
+    ): JsonResponse {
         return $this->json(
-            $this->relationshipRepository->findBy(['following' => $user]), //les utilisateurs qui following users donc users=followed
+            $this->relationshipRepository->findPaginateFollowing($paginationDto, $user), //les utilisateurs qui following users donc users=followed
             Response::HTTP_OK,
             context: [
-                'groups' => ['common:index', 'following:index'],
+                'groups' => ['relationship:index', 'following:index'],
             ],
         );
     }
@@ -116,7 +128,7 @@ class RelationshipController extends AbstractController
             ],
             Response::HTTP_CREATED,
             context: [
-                'groups' => ['common:index'],
+                'groups' => ['relationship:index'],
             ],
         );
     }
