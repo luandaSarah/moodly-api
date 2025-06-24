@@ -50,7 +50,6 @@ class UserController extends AbstractController
         );
     }
 
-
     /**
      * 
      * Recupere un utilisateur
@@ -79,6 +78,7 @@ class UserController extends AbstractController
     #[Route('/profile', name: 'profile_show', methods: ['GET'])]
     public function showProfile(): JsonResponse
     {
+
         $user = $this->getUser();
 
         if (!$user) {
@@ -121,7 +121,6 @@ class UserController extends AbstractController
         );
     }
 
-
     #[Route('/profile', name: 'update', methods: ['PATCH'])]
     public function update(
         #[MapRequestPayload]
@@ -154,8 +153,6 @@ class UserController extends AbstractController
             ],
         );
     }
-
-
 
     #[Route('/profile', name: 'delete', methods: ['DELETE'])]
     public function delete(): JsonResponse

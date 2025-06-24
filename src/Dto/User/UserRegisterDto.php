@@ -2,7 +2,6 @@
 
 namespace App\Dto\User;
 
-use App\Dto\Interfaces\UserRequestInterface;
 use App\Entity\UserInfo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(
     fields: ['pseudo'],
     entityClass: UserInfo::class,
-    message: 'pseudo est déjà pris'
+    message: 'Ce pseudo est déjà pris'
 )]
 #[UniqueEntity(
     fields: ['email'],

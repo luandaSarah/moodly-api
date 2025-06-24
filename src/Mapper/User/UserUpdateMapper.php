@@ -4,7 +4,6 @@ namespace App\Mapper\User;
 
 use App\Entity\UserInfo;
 use App\Dto\User\UserUpdateDto;
-use App\Dto\User\UserRegisterDto;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserUpdateMapper
