@@ -43,12 +43,11 @@ class UserUpdateMapper
             );
         }
 
-        
-        if (null !== $dto->getAvatarUrl()) {
-            $user->setAvatarUrl(
-                $dto->getAvatarUrl()
-            );
-        }
+        // if (null !== $dto->getAvatarUrl()) {
+        //     $user->setAvatarUrl(
+        //         $dto->getAvatarUrl()
+        //     );
+        // }
 
         if (null !== $dto->getBio()) {
             $user->setBio(

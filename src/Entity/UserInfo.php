@@ -17,20 +17,20 @@ class UserInfo extends User
 {
 
 
-    #[ORM\Column(length: 2083, nullable: true)]
-    #[Groups(['common:show', 'common:index','relationship:index'])]
-    private ?string $avatarUrl = null;
+    // #[ORM\Column(length: 2083, nullable: true)]
+    // #[Groups(['common:show', 'common:index','relationship:index'])]
+    // private ?string $avatarUrl = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['common:show'])]
     private ?string $bio = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['common:show', 'common:index','relationship:index'])]
+    #[Groups(['common:show', 'common:index', 'relationship:index'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['common:show', 'common:index','relationship:index'])]
+    #[Groups(['common:show', 'common:index', 'relationship:index'])]
     private ?string $pseudo = null;
 
     /**
@@ -45,23 +45,16 @@ class UserInfo extends User
     #[ORM\OneToMany(targetEntity: Moodboard::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $moodboards;
 
+    #[ORM\OneToOne(targetEntity: UserAvatar::class, mappedBy: 'user',  cascade: ['persist'], orphanRemoval: true)]
+    private ?UserAvatar $userAvatar = null;
+
+
+
     public function __construct()
     {
         parent::__construct();
         $this->relationships = new ArrayCollection();
         $this->moodboards = new ArrayCollection();
-    }
-
-    public function getAvatarUrl(): ?string
-    {
-        return $this->avatarUrl;
-    }
-
-    public function setAvatarUrl(?string $avatarUrl): static
-    {
-        $this->avatarUrl = $avatarUrl;
-
-        return $this;
     }
 
     public function getBio(): ?string
@@ -157,6 +150,27 @@ class UserInfo extends User
                 $moodboard->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    #[Groups(['common:show', 'common:index', 'relationship:index'])]
+    public function getUserAvatar(): ?UserAvatar
+    {
+        return $this->userAvatar;
+    }
+
+    public function setUserAvatar(?UserAvatar $userAvatar): static
+    {
+        if ($userAvatar === null && $this->userAvatar !== null) {
+            $this->userAvatar->setUser(null);
+        }
+
+        if ($userAvatar !== null && $userAvatar->getUser() !== $this) {
+            $userAvatar->setUser($this);
+        }
+
+        $this->userAvatar = $userAvatar;
 
         return $this;
     }

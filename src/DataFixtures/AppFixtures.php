@@ -37,12 +37,11 @@ class AppFixtures extends Fixture
             ->setPassword(
                 $this->passwordHasher->hashPassword(
                     $userAdmin,
-                    'admin123'
+                    '123Admin!'
                 )
             )
             ->setPseudo('admin1')
             ->setName('Admin Admin')
-            ->setAvatarUrl('https://i.pinimg.com/736x/53/b1/c0/53b1c07490f8a3290a9b988ff727d236.jpg')
             ->setBio($this->faker->sentence())
         ;
 
@@ -66,11 +65,6 @@ class AppFixtures extends Fixture
                         'user'
                     )
                 )
-                ->setAvatarUrl($this->faker->randomElement([
-                    'https://i.pinimg.com/736x/3b/65/26/3b65260662482ca6d9501161f071eacf.jpg',
-                    'https://i.pinimg.com/736x/d6/e9/92/d6e99220837cb273ad44e0720fd0942a.jpg',
-                    'https://i.pinimg.com/736x/ee/19/2d/ee192d11d9469d9b65c9bdcb593f711a.jpg'
-                ]))
                 ->setBio($this->faker->sentence())
             ;
 

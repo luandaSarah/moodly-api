@@ -18,7 +18,6 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[DiscriminatorColumn(name: 'discr', type: 'string')]
 #[DiscriminatorMap(['userInfo' => UserInfo::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {

@@ -3,14 +3,18 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Traits\DateTimeTraits;
 use App\Repository\RelationshipRepository;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: RelationshipRepository::class)]
 #[ORM\UniqueConstraint(name: 'unique_follow', columns: ['following_id', 'followed_id'])]
-
+#[ORM\HasLifecycleCallbacks]
 class Relationship
 {
+
+    use DateTimeTraits;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

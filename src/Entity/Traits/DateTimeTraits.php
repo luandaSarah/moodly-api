@@ -8,7 +8,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 /**
  * Traits pour la réutilisation des propriété createdAt et updatedAt dans mes entités
  */
-trait DateTimeTraits
+trait DateTimeTraits 
 {
 
     #[ORM\Column]

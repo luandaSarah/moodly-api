@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     entityClass: UserInfo::class,
     message: 'Ce mail est déjà pris'
 )]
-class UserUpdateDto 
+class UserUpdateDto
 {
     public function __construct(
 
@@ -59,6 +59,10 @@ class UserUpdateDto
             minMessage: 'Le mot de passe doit contenir au moins {{limit}} caractères',
             maxMessage: 'Le mot de pass ne doit pas contenir plus de {{limit}} caractères',
         )]
+        #[Assert\EqualTo(
+            propertyPath: 'confirmPassword',
+            message: 'Les mots de passe doivent être identique',
+        )]
         private readonly ?string $plainPassword = null,
 
         #[Assert\EqualTo(
@@ -67,10 +71,10 @@ class UserUpdateDto
         )]
         private readonly ?string $confirmPassword = null,
 
-        #[Assert\Url(
-            message: 'Cette Url n\'est pas valide'
-        )]
-        private readonly ?string $avatarUrl = null,
+        // #[Assert\Url(
+        //     message: 'Cette Url n\'est pas valide'
+        // )]
+        // private readonly ?string $avatarUrl = null,
 
         #[Assert\Length(
             min: 0,
@@ -124,10 +128,10 @@ class UserUpdateDto
     /**
      * Get the value of avatarUrl
      */
-    public function getAvatarUrl(): ?string
-    {
-        return $this->avatarUrl;
-    }
+    // public function getAvatarUrl(): ?string
+    // {
+    //     return $this->avatarUrl;
+    // }
 
     /**
      * Get the value of bio
