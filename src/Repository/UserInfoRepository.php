@@ -26,11 +26,6 @@ class UserInfoRepository extends ServiceEntityRepository
     }
 
 
-    // public function findUser()
-    // {
-    //     return $this->createQueryBuilder('u')
-    //     ->select('')
-    // }
     /**
      * Summary of findPaginate
      * @param \App\Dto\Filter\PaginationFilterDto $filter

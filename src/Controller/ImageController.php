@@ -93,4 +93,12 @@ class ImageController extends AbstractController
          );
       }
    }
+
+   // #[Route('/moodboard-images', name: 'moodboard', methods: ['POST'])]
+   // public function uploadAvatar(
+   //    Request $request,
+   //    S3Service $s3Service
+   // ): JsonResponse {
+
+   // }
 }
