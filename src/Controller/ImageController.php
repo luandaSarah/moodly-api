@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Moodboard;
 use App\Entity\UserAvatar;
 use App\Service\S3Service;
+use App\Entity\MoodboardImage;
 use App\Repository\UserInfoRepository;
 use App\Repository\UserAvatarRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('api/upload', name: 'api_upload_')]
@@ -51,11 +54,11 @@ class ImageController extends AbstractController
          );
       }
 
-      $image = $request->files->get('image');
+      $image = $request->files->get('images');
 
       if (!$image) {
          return $this->json(
-            ['error' => 'No image uploaded'],
+            ['error' => 'Aucune image fournie.'],
             Response::HTTP_BAD_REQUEST,
          );
       }
@@ -94,11 +97,62 @@ class ImageController extends AbstractController
       }
    }
 
-   // #[Route('/moodboard-images', name: 'moodboard', methods: ['POST'])]
-   // public function uploadAvatar(
-   //    Request $request,
-   //    S3Service $s3Service
-   // ): JsonResponse {
+   #[Route('/moodboard/{id}', name: 'moodboard', methods: ['POST'])]
+   public function uploadMoodboardImage(
+      Moodboard $moodboard,
+      Request $request,
+      S3Service $s3Service
 
-   // }
+   ): JsonResponse {
+
+      if (!$moodboard) {
+         return $this->json(['error' => 'Moodboard introuvable'], Response::HTTP_NOT_FOUND);
+      }
+
+      $images = $request->files->all('images');
+
+      if (count($images) <= 0) {
+         return $this->json(['error' => 'Aucune image fournie.'], Response::HTTP_BAD_REQUEST);
+      }
+
+      $existingMoodboardImg = count($moodboard->getMoodboardImages());
+      if ($existingMoodboardImg + count($images) > 4) {
+         return $this->json(['error' => 'Un moodboard ne peut pas contenir plus de 4 images.'], Response::HTTP_BAD_REQUEST);
+      }
+
+
+      try {
+         $allImages = [];
+
+         foreach ($images as $image) {
+            if (!$image instanceof UploadedFile) {
+               continue;
+            }
+
+            $imageUrl =  $s3Service->upload($image, 'moodboards');
+            $moodboardImage = new MoodboardImage();
+            $moodboardImage->setImageUrl($imageUrl);
+            $moodboardImage->setMoodboard($moodboard);
+
+            $allImages[] = $moodboardImage;
+            $this->em->persist($moodboardImage);
+         }
+
+         $this->em->flush();
+
+
+         return $this->json(
+            $moodboardImage,
+            status: Response::HTTP_CREATED,
+            context: [
+               'groups' => ['moodboard:image'],
+            ]
+         );
+      } catch (\Exception $e) {
+         return $this->json(
+            ['error' => $e->getMessage()],
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+         );
+      }
+   }
 }

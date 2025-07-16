@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\MoodboardImageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\MoodboardImageRepository;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: MoodboardImageRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -12,13 +13,17 @@ class MoodboardImage
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['moodboard:image'])]
+
     private ?int $id = null;
 
     #[ORM\Column(length: 2083)]
+    #[Groups(['moodboard:image'])]
     private ?string $imageUrl = null;
 
     #[ORM\ManyToOne(inversedBy: 'moodboardImages')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['moodboard:image'])]
     private ?Moodboard $moodboard = null;
 
     public function getId(): ?int
