@@ -6,6 +6,7 @@ use App\Entity\Moodboard;
 use App\Entity\UserAvatar;
 use App\Service\S3Service;
 use App\Entity\MoodboardImage;
+use App\Repository\MoodboardImageRepository;
 use App\Repository\UserInfoRepository;
 use App\Repository\UserAvatarRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,13 +17,14 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('api/upload', name: 'api_upload_')]
+#[Route('api', name: 'api_upload_')]
 class ImageController extends AbstractController
 {
 
    public function __construct(
       private UserInfoRepository $userInfoRepository,
       private UserAvatarRepository $userAvatarRepository,
+      private MoodboardImageRepository $moodboardImageRepository,
       private EntityManagerInterface $em,
    ) {}
 
@@ -33,7 +35,7 @@ class ImageController extends AbstractController
       return str_replace($_ENV['S3_BASE_URL'], '', $imgUrl);
    }
 
-   #[Route('/profile-avatar', name: 'avatar', methods: ['POST'])]
+   #[Route('/profile/avatar', name: 'avatar', methods: ['POST'])]
    public function uploadAvatar(
       Request $request,
       S3Service $s3Service
@@ -97,7 +99,7 @@ class ImageController extends AbstractController
       }
    }
 
-   #[Route('/moodboard/{id}', name: 'moodboard', methods: ['POST'])]
+   #[Route('/moodboard/{id}/image', name: 'moodboard', methods: ['POST'])]
    public function uploadMoodboardImage(
       Moodboard $moodboard,
       Request $request,
@@ -138,11 +140,14 @@ class ImageController extends AbstractController
             $this->em->persist($moodboardImage);
          }
 
+
+
          $this->em->flush();
 
 
+
          return $this->json(
-            $moodboardImage,
+            $allImages,
             status: Response::HTTP_CREATED,
             context: [
                'groups' => ['moodboard:image'],
