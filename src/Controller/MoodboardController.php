@@ -39,7 +39,7 @@ class MoodboardController extends AbstractController
             $this->moodboardRepository->findPaginate($paginationDto),
             Response::HTTP_OK,
             context: [
-                'groups' => ['common:index', 'moodboard:index'],
+                'groups' => ['common:index', 'moodboard:index','moodboard:image'],
             ],
         );
     }
@@ -55,7 +55,7 @@ class MoodboardController extends AbstractController
             $this->moodboardRepository->findPaginate($paginationDto, $user),
             Response::HTTP_OK,
             context: [
-                'groups' => ['common:index', 'moodboard:index'],
+                'groups' => ['common:index', 'moodboard:index','moodboard:image'],
             ],
         );
     }
@@ -71,7 +71,7 @@ class MoodboardController extends AbstractController
             $this->moodboardRepository->findPaginate($paginationDto, $user),
             Response::HTTP_OK,
             context: [
-                'groups' => ['common:index', 'moodboard:index'],
+                'groups' => ['common:index', 'moodboard:index','moodboard:image'],
             ],
         );
     }
@@ -84,7 +84,7 @@ class MoodboardController extends AbstractController
             $moodboard,
             Response::HTTP_OK,
             context: [
-                'groups' => ['common:index', 'moodboard:index'],
+                'groups' => ['common:index', 'moodboard:show','moodboard:image'],
             ],
         );
     }
@@ -122,7 +122,7 @@ class MoodboardController extends AbstractController
             ],
             Response::HTTP_OK,
             context: [
-                'groups' => ['common:index', 'moodboard:index'],
+                'groups' => ['common:index', 'moodboard:index','moodboard:image'],
             ],
         );
     }
@@ -138,4 +138,6 @@ class MoodboardController extends AbstractController
             Response::HTTP_NO_CONTENT
         );
     }
+
+
 }

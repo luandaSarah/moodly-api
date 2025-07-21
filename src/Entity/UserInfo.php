@@ -26,11 +26,11 @@ class UserInfo extends User
     private ?string $bio = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['common:show', 'common:index', 'relationship:index', 'moodboard:index'])]
+    #[Groups(['common:show', 'common:index', 'relationship:index', 'moodboard:index',  'moodboard:show', 'moodboard:comments'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['common:show', 'common:index', 'relationship:index', 'moodboard:index'])]
+    #[Groups(['common:show', 'common:index', 'relationship:index', 'moodboard:index',  'moodboard:show','moodboard:comments'])]
     private ?string $pseudo = null;
 
     /**

@@ -14,7 +14,6 @@ class MoodboardImage
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['moodboard:image'])]
-
     private ?int $id = null;
 
     #[ORM\Column(length: 2083)]
@@ -23,7 +22,6 @@ class MoodboardImage
 
     #[ORM\ManyToOne(inversedBy: 'moodboardImages')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['moodboard:image'])]
     private ?Moodboard $moodboard = null;
 
     public function getId(): ?int

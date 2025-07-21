@@ -99,7 +99,7 @@ class ImageController extends AbstractController
       }
    }
 
-   #[Route('/moodboard/{id}/image', name: 'moodboard', methods: ['POST'])]
+   #[Route('/moodboards/{id}/image', name: 'moodboard', methods: ['POST'])]
    public function uploadMoodboardImage(
       Moodboard $moodboard,
       Request $request,

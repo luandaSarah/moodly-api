@@ -19,24 +19,24 @@ class Moodboard
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['moodboard:index','moodboard:image'])]
+    #[Groups(['moodboard:index', 'moodboard:image', 'moodboard:show'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['moodboard:index'])]
+    #[Groups(['moodboard:index', 'moodboard:show'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['moodboard:index'])]
+    #[Groups(['moodboard:index', 'moodboard:show'])]
     private ?string $backgroundColor = null;
 
     #[ORM\Column(length: 255, options: ['default' => 'draft'])]
-    #[Groups(['moodboard:index'])]
+    #[Groups(['admin:index'])]
     private ?string $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'moodboards')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['moodboard:index'])]
+    #[Groups(['moodboard:index', 'moodboard:show'])]
     private ?UserInfo $user = null;
 
     /**
@@ -45,11 +45,18 @@ class Moodboard
     #[ORM\OneToMany(targetEntity: MoodboardImage::class, mappedBy: 'moodboard', orphanRemoval: true)]
     private Collection $moodboardImages;
 
+    /**
+     * @var Collection<int, MoodboardComment>
+     */
+    #[ORM\OneToMany(targetEntity: MoodboardComment::class, mappedBy: 'moodboard', orphanRemoval: true)]
+    private Collection $moodboardComments;
+
     public function __construct()
     {
         // On le place dans le constructeurs, à la création l'entité user aura toujours le status active
         $this->status = 'draft';
         $this->moodboardImages = new ArrayCollection();
+        $this->moodboardComments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -109,6 +116,7 @@ class Moodboard
     /**
      * @return Collection<int, MoodboardImage>
      */
+    #[Groups(['moodboard:index', 'moodboard:show'])]
     public function getMoodboardImages(): Collection
     {
         return $this->moodboardImages;
@@ -130,6 +138,36 @@ class Moodboard
             // set the owning side to null (unless already changed)
             if ($moodboardImage->getMoodboard() === $this) {
                 $moodboardImage->setMoodboard(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MoodboardComment>
+     */
+    public function getMoodboardComments(): Collection
+    {
+        return $this->moodboardComments;
+    }
+
+    public function addMoodboardComment(MoodboardComment $moodboardComment): static
+    {
+        if (!$this->moodboardComments->contains($moodboardComment)) {
+            $this->moodboardComments->add($moodboardComment);
+            $moodboardComment->setMoodboard($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMoodboardComment(MoodboardComment $moodboardComment): static
+    {
+        if ($this->moodboardComments->removeElement($moodboardComment)) {
+            // set the owning side to null (unless already changed)
+            if ($moodboardComment->getMoodboard() === $this) {
+                $moodboardComment->setMoodboard(null);
             }
         }
 
