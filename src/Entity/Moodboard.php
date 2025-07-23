@@ -51,12 +51,19 @@ class Moodboard
     #[ORM\OneToMany(targetEntity: MoodboardComment::class, mappedBy: 'moodboard', orphanRemoval: true)]
     private Collection $moodboardComments;
 
+    /**
+     * @var Collection<int, MoodboardLike>
+     */
+    #[ORM\OneToMany(targetEntity: MoodboardLike::class, mappedBy: 'moodboard', orphanRemoval: true)]
+    private Collection $moodboardLikes;
+
     public function __construct()
     {
         // On le place dans le constructeurs, à la création l'entité user aura toujours le status active
         $this->status = 'draft';
         $this->moodboardImages = new ArrayCollection();
         $this->moodboardComments = new ArrayCollection();
+        $this->moodboardLikes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -172,5 +179,14 @@ class Moodboard
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, MoodboardLike>
+     */
+    #[Groups(['moodboard:index', 'moodboard:show'])]
+    public function getMoodboardLikes(): Collection
+    {
+        return $this->moodboardLikes;
     }
 }

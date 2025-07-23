@@ -28,7 +28,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['common:index','relationship:index', 'moodboard:index', 'moodboard:show', 'moodboard:comments'])]
+    #[Groups(['common:index', 'relationship:index', 'moodboard:index', 'moodboard:show', 'moodboard:comments'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
@@ -63,11 +63,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: MoodboardComment::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $moodboardComments;
 
+    /**
+     * @var Collection<int, MoodboardLike>
+     */
+    #[ORM\ManyToMany(targetEntity: MoodboardLike::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $moodboardLikes;
+
+
+
     public function __construct()
     {
         //On le place dans le constructeurs, à la création l'entité user aura toujours le status active 
         $this->status = 'active';
         $this->moodboardComments = new ArrayCollection();
+        $this->moodboardLikes = new ArrayCollection();
     }
 
 
@@ -196,5 +205,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, MoodboardLike>
+     */
+    public function getMoodboardLikes(): Collection
+    {
+        return $this->moodboardLikes;
     }
 }
