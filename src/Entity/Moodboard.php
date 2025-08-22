@@ -184,7 +184,7 @@ class Moodboard
     /**
      * @return Collection<int, MoodboardLike>
      */
-    #[Groups(['moodboard:index', 'moodboard:show'])]
+    // #[Groups(['moodboard:index', 'moodboard:show'])]
     public function getMoodboardLikes(): Collection
     {
         return $this->moodboardLikes;

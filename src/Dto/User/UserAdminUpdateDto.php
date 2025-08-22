@@ -3,7 +3,6 @@
 namespace App\Dto\User;
 
 use App\Entity\UserInfo;
-use App\Dto\Interfaces\UserRequestInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -18,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     entityClass: UserInfo::class,
     message: 'Ce mail est déjà pris'
 )]
-class UserUpdateDto
+class UserAdminUpdateDto
 {
     public function __construct(
 
@@ -71,11 +70,6 @@ class UserUpdateDto
         )]
         private readonly ?string $confirmPassword = null,
 
-        // #[Assert\Url(
-        //     message: 'Cette Url n\'est pas valide'
-        // )]
-        // private readonly ?string $avatarUrl = null,
-
         #[Assert\Length(
             min: 0,
             max: 180,
@@ -83,8 +77,14 @@ class UserUpdateDto
         )]
         private readonly ?string $bio = null,
 
-     
+        #[Assert\Choice(
+            choices: ['ROLE_USER', 'ROLE_ADMIN'],
+            message: 'Le rôle doit être soit ROLE_USER, soit ROLE_ADMIN',
+            multiple: true,
+        )]
+        private readonly ?array $roles = null,
     ) {}
+
     /**
      * Get the value of pseudo
      */
@@ -126,18 +126,18 @@ class UserUpdateDto
     }
 
     /**
-     * Get the value of avatarUrl
-     */
-    // public function getAvatarUrl(): ?string
-    // {
-    //     return $this->avatarUrl;
-    // }
-
-    /**
      * Get the value of bio
      */
     public function getBio(): ?string
     {
         return $this->bio;
+    }
+
+    /**
+     * Get the value of roles
+     */
+    public function getRoles():?array
+    {
+        return $this->roles;
     }
 }

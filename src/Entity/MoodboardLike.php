@@ -23,7 +23,7 @@ class MoodboardLike
 
     #[ORM\ManyToOne(inversedBy: 'moodboardLikes')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['moodboard:index', 'moodboard:show'])]
+    // #[Groups(['moodboard:index', 'moodboard:show'])]
     private ?Moodboard $moodboard = null;
 
 

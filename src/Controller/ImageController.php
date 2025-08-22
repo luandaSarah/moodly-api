@@ -35,6 +35,54 @@ class ImageController extends AbstractController
       return str_replace($_ENV['S3_BASE_URL'], '', $imgUrl);
    }
 
+
+   public function convertImgToWebp(UploadedFile $uploadedImg): UploadedFile | null
+   {
+
+      $originImg = $uploadedImg->getPathname();
+
+      $imgType = mime_content_type($originImg);
+
+      switch ($imgType) {
+         case 'image/jpeg':
+            $image = imagecreatefromjpeg($originImg);
+            break;
+         case 'image/png':
+            $image = imagecreatefrompng($originImg);
+            //pour gérer transparence des png 
+            imagepalettetotruecolor($image);
+            imagealphablending($image, true);
+            imagesavealpha($image, true);
+            break;
+
+         case 'image/webp':
+            $image = imagecreatefromwebp($originImg);
+            break;
+         default:
+            throw new \Exception("Format non supporté");
+      }
+
+      $temporyImg = sys_get_temp_dir() . '\\' . uniqid() . '.webp';
+
+
+      $toWebp = imagewebp($image, $temporyImg, 80); //retourne un boolean si ca à marché ou pas 
+      imagedestroy($image);
+
+      if ($toWebp) {
+
+         return new UploadedFile(
+            $temporyImg,
+            uniqid() . '.webp',
+            "image/webp",
+            null,
+            true
+         );
+      } else {
+         throw new \Exception("Erreur lors de la conversion de l'image en webp");
+      }
+   }
+
+
    #[Route('/profile/avatar', name: 'avatar', methods: ['POST'])]
    public function uploadAvatar(
       Request $request,
@@ -64,10 +112,14 @@ class ImageController extends AbstractController
             Response::HTTP_BAD_REQUEST,
          );
       }
+      //convert img to webp
+      $image = $this->convertImgToWebp($image);
+
+
 
       try {
          $userAvatarAlreadyExist = $this->userAvatarRepository->findOneBy(['user' => $user]);
-         // dd($userAvatarAlreadyExist);
+
          if ($userAvatarAlreadyExist) {
             $previewsAvatarKey = $this->extractKeyFromUrl($userAvatarAlreadyExist->getAvatarUrl());
             $s3Service->delete($previewsAvatarKey);
@@ -76,6 +128,9 @@ class ImageController extends AbstractController
             $this->em->flush();
          }
 
+
+
+
          $avatarUrl = $s3Service->upload($image, 'avatar');
          $userAvatar = new UserAvatar();
          $userAvatar->setAvatarUrl($avatarUrl);
@@ -83,7 +138,8 @@ class ImageController extends AbstractController
          $this->em->persist($userAvatar);
          $this->em->flush();
 
-
+         //detruit l'image temporaire crée lors de la conversion sur le pc
+         unlink($image->getPathname());
          return $this->json(
             $userAvatar,
             status: Response::HTTP_CREATED,
@@ -98,6 +154,7 @@ class ImageController extends AbstractController
          );
       }
    }
+
 
    #[Route('/moodboards/{id}/image', name: 'moodboard', methods: ['POST'])]
    public function uploadMoodboardImage(
@@ -131,6 +188,9 @@ class ImageController extends AbstractController
                continue;
             }
 
+            //convert img to webp
+            $image = $this->convertImgToWebp($image);
+
             $imageUrl =  $s3Service->upload($image, 'moodboards');
             $moodboardImage = new MoodboardImage();
             $moodboardImage->setImageUrl($imageUrl);
@@ -138,8 +198,11 @@ class ImageController extends AbstractController
 
             $allImages[] = $moodboardImage;
             $this->em->persist($moodboardImage);
+            //detruit l'image temporaire crée lors de la conversion sur le pc
+            unlink($image->getPathname());
          }
 
+         
 
 
          $this->em->flush();

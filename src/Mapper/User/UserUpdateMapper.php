@@ -2,6 +2,7 @@
 
 namespace App\Mapper\User;
 
+use App\Dto\User\UserAdminUpdateDto;
 use App\Entity\UserInfo;
 use App\Dto\User\UserUpdateDto;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -12,7 +13,7 @@ class UserUpdateMapper
         private readonly UserPasswordHasherInterface $passwordHasher,
     ) {}
 
-    public function map(UserUpdateDto $dto, UserInfo $user ): UserInfo
+    public function map(UserUpdateDto|UserAdminUpdateDto $dto, UserInfo $user ): UserInfo
     {
         
 
@@ -43,15 +44,17 @@ class UserUpdateMapper
             );
         }
 
-        // if (null !== $dto->getAvatarUrl()) {
-        //     $user->setAvatarUrl(
-        //         $dto->getAvatarUrl()
-        //     );
-        // }
+     
 
         if (null !== $dto->getBio()) {
             $user->setBio(
                 $dto->getBio()
+            );
+        }
+
+           if (null !== $dto->getRoles()) {
+            $user->setRoles(
+                $dto->getRoles()
             );
         }
 

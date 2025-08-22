@@ -59,9 +59,8 @@ trait DateTimeTraits
     #[ORM\PreUpdate]  //permet d'inserer la date de maj auto avant la modification en bdd
     public function autoSetUpdatedAt(): static
     {
-        if (!$this->updatedAt) {
             $this->updatedAt = new \DateTimeImmutable();
-        }
+        
 
         return $this;
     }
