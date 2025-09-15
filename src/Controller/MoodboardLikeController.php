@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Moodboard;
-use App\Entity\MoodboardLike;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

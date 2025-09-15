@@ -41,7 +41,7 @@ class MoodboardCommentController extends AbstractController
         return $this->json(
             $this->moodboardCommentRepository->findPaginate($paginationFilterDto, $moodboard),
             Response::HTTP_OK,
-            context: ['groups' => ['moodboard:comments']]
+            context: ['groups' => ['moodboard:comments', 'common:index']]
         );
     }
 
@@ -53,7 +53,7 @@ class MoodboardCommentController extends AbstractController
         return $this->json(
             $this->moodboardCommentRepository->find($moodboardComment),
             Response::HTTP_OK,
-            context: ['groups' => ['moodboard:comments']]
+            context: ['groups' => ['moodboard:comments', 'common:index']]
         );
     }
 
@@ -69,10 +69,9 @@ class MoodboardCommentController extends AbstractController
         $this->em->flush();
 
         return $this->json(
-            [
-                'id' => $moodboardComment->getId(),
-            ],
+            $moodboardComment,
             Response::HTTP_CREATED,
+            context: ['groups' => ['moodboard:comments', 'common:index']]
         );
     }
 
@@ -90,7 +89,7 @@ class MoodboardCommentController extends AbstractController
                 $moodboardComment,
             ],
             Response::HTTP_OK,
-            context: ['groups' => ['moodboard:comments']]
+            context: ['groups' => ['moodboard:comments', 'common:index']]
         );
     }
 

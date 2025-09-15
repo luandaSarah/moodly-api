@@ -66,7 +66,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, MoodboardLike>
      */
-    #[ORM\ManyToMany(targetEntity: MoodboardLike::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: MoodboardLike::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $moodboardLikes;
 
 

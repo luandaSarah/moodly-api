@@ -43,6 +43,7 @@ class ImageController extends AbstractController
 
       $imgType = mime_content_type($originImg);
 
+      //transformer image en format GDImage
       switch ($imgType) {
          case 'image/jpeg':
             $image = imagecreatefromjpeg($originImg);
@@ -121,14 +122,14 @@ class ImageController extends AbstractController
          $userAvatarAlreadyExist = $this->userAvatarRepository->findOneBy(['user' => $user]);
 
          if ($userAvatarAlreadyExist) {
+         
+            
             $previewsAvatarKey = $this->extractKeyFromUrl($userAvatarAlreadyExist->getAvatarUrl());
             $s3Service->delete($previewsAvatarKey);
             $user->setUserAvatar(null);
             $this->em->remove($userAvatarAlreadyExist);
             $this->em->flush();
          }
-
-
 
 
          $avatarUrl = $s3Service->upload($image, 'avatar');
@@ -202,7 +203,7 @@ class ImageController extends AbstractController
             unlink($image->getPathname());
          }
 
-         
+
 
 
          $this->em->flush();

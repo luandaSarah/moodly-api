@@ -17,12 +17,12 @@ class MoodboardLike
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'moodboardLikes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     #[Groups(['moodboard:index', 'moodboard:show'])]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'moodboardLikes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     // #[Groups(['moodboard:index', 'moodboard:show'])]
     private ?Moodboard $moodboard = null;
 

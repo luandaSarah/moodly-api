@@ -22,12 +22,12 @@ class Relationship
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'relationships')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     #[Groups(['followers:index'])]
     private ?UserInfo $following = null;
 
     #[ORM\ManyToOne(inversedBy: 'relationships')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     #[Groups(['following:index'])]
     private ?UserInfo $followed = null;
 

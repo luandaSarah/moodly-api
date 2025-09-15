@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 class MoodboardComment
 {
 
+
     use DateTimeTraits;
 
     #[ORM\Id]
