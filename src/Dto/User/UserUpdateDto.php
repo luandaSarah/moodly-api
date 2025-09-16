@@ -49,6 +49,9 @@ class UserUpdateDto
         )]
         private readonly ?string $email = null,
 
+
+        private readonly ?string $currentPassword = null,
+
         #[Assert\Regex(
             pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&.,]{6,}$/',
             message: 'Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial (@ $ ! % * ? &)'
@@ -60,16 +63,16 @@ class UserUpdateDto
             maxMessage: 'Le mot de pass ne doit pas contenir plus de {{limit}} caractères',
         )]
         #[Assert\EqualTo(
-            propertyPath: 'confirmPassword',
+            propertyPath: 'confirmNewPassword',
             message: 'Les mots de passe doivent être identique',
         )]
-        private readonly ?string $plainPassword = null,
+        private readonly ?string $newPassword = null,
 
         #[Assert\EqualTo(
-            propertyPath: 'plainPassword',
+            propertyPath: 'newPassword',
             message: 'Les mots de passe doivent être identique',
         )]
-        private readonly ?string $confirmPassword = null,
+        private readonly ?string $confirmNewPassword = null,
 
         // #[Assert\Url(
         //     message: 'Cette Url n\'est pas valide'
@@ -83,8 +86,9 @@ class UserUpdateDto
         )]
         private readonly ?string $bio = null,
 
-     
+
     ) {}
+
     /**
      * Get the value of pseudo
      */
@@ -109,29 +113,7 @@ class UserUpdateDto
         return $this->email;
     }
 
-    /**
-     * Get the value of confirmPassword
-     */
-    public function getConfirmPassword(): ?string
-    {
-        return $this->confirmPassword;
-    }
 
-    /**
-     * Get the value of plainPassword
-     */
-    public function getPlainPassword(): ?string
-    {
-        return $this->plainPassword;
-    }
-
-    /**
-     * Get the value of avatarUrl
-     */
-    // public function getAvatarUrl(): ?string
-    // {
-    //     return $this->avatarUrl;
-    // }
 
     /**
      * Get the value of bio
@@ -139,5 +121,29 @@ class UserUpdateDto
     public function getBio(): ?string
     {
         return $this->bio;
+    }
+
+    /**
+     * Get the value of currentPassword
+     */
+    public function getCurrentPassword(): ?string
+    {
+        return $this->currentPassword;
+    }
+
+    /**
+     * Get the value of newPassword
+     */
+    public function getNewPassword(): ?string
+    {
+        return $this->newPassword;
+    }
+
+    /**
+     * Get the value of confirmNewPassword
+     */
+    public function getConfirmNewPassword(): ?string
+    {
+        return $this->confirmNewPassword;
     }
 }

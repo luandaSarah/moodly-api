@@ -27,6 +27,41 @@ class RelationshipController extends AbstractController
     ) {}
 
     /**
+     * Check si l'user en paramettre est suivi par l'user connécté
+     *
+     *  @param \App\Entity\UserInfo $user
+     * @return JsonResponse
+     */
+    #[Route('/profile/following/{id}', name: 'profile_follow_user_check', methods: ['GET'])]
+    public function profileFollowUser(UserInfo $user): JsonResponse
+
+    {
+        $connectedUser = $this->getUser();
+
+        $relationship = $this->relationshipRepository->findOneBy([
+            'following' => $connectedUser,
+            'followed' => $user,
+        ]);
+
+        $relationship !== null ?
+            $data = [
+                'isFollowed' => $relationship !== null,
+                'relationshipId' => $relationship->getId()
+            ] :
+            $data = ['isFollowed' => $relationship !== null];
+
+
+        return $this->json(
+
+            $data,
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'followers:index'],
+            ],
+        );
+    }
+
+    /**
      * Récupere les utilisateurs qui suive l'user connecté
      *
      * @return JsonResponse
