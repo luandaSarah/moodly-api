@@ -3,97 +3,65 @@
 namespace App\Entity\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
  * Traits pour la réutilisation des propriété createdAt et updatedAt dans mes entités
  */
-trait DateTimeTraits
+trait DateTimeTraits 
 {
+
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    #[Groups(['common:show'])]
+    protected ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updateAt = null;
+    #[Groups(['common:show'])]
+
+    protected ?\DateTimeImmutable $updatedAt = null;
 
 
-
-    /**
-     * Get the value of createdAt
-     *
-     * @return ?\DateTimeImmutable
-     */
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    /**
-     * Set the value of createdAt
-     *
-     * @param ?\DateTimeImmutable $createdAt
-     *
-     * @return self
-     */
-    public function setCreatedAt(?\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    /**
-     * Get the value of updateAt
-     *
-     * @return ?\DateTimeImmutable
-     */
-    public function getUpdateAt(): ?\DateTimeImmutable
+    public function getUpdatedAt(): ?\DateTimeImmutable
     {
-        return $this->updateAt;
+        return $this->updatedAt;
     }
 
-    /**
-     * Set the value of updateAt
-     *
-     * @param ?\DateTimeImmutable $updateAt
-     *
-     * @return self
-     */
-    public function setUpdateAt(?\DateTimeImmutable $updateAt): self
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
-        $this->updateAt = $updateAt;
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
 
-
-    /**
-     * Cette methode génére automatiquement la date de création à la persistance de notre entité en bdd 
-     * grace à au LifeCycleCallback : PrePersist
-     * @return static
-     */
-    #[ORM\PrePersist] 
-    public function autosetCreatedAt(): static
+    #[ORM\PrePersist]  //permet d'inserer la date de creation auto avant la persistance en bdd
+    public function autoSetCreatedAt(): static
     {
         if (!$this->createdAt) {
             $this->createdAt = new \DateTimeImmutable();
         }
+
         return $this;
     }
 
-     /**
-     * Cette methode génére automatiquement la date de mise à jour à la persistance de notre entité en bdd
-     *grace à au LifeCycleCallback : PreUpdate
-     * @return static
-     */
 
-    #[ORM\PreUpdate]
-    public function autosetUpdatedAt(): static
+    #[ORM\PreUpdate]  //permet d'inserer la date de maj auto avant la modification en bdd
+    public function autoSetUpdatedAt(): static
     {
-        if (!$this->updatedAt) {
             $this->updatedAt = new \DateTimeImmutable();
-        }
+        
+
         return $this;
     }
-
-
 }

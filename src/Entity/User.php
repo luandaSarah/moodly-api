@@ -2,15 +2,24 @@
 
 namespace App\Entity;
 
-use App\Entity\Traits\DateTimeTraits;
-use App\Repository\UserRepository;
+use App\Entity\UserInfo;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use App\Entity\Traits\DateTimeTraits;
+use Doctrine\ORM\Mapping\InheritanceType;
+use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Doctrine\ORM\Mapping\DiscriminatorColumn;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[InheritanceType('JOINED')]
+#[DiscriminatorColumn(name: 'discr', type: 'string')]
+#[DiscriminatorMap(['userInfo' => UserInfo::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -19,15 +28,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['common:index', 'relationship:index', 'moodboard:index', 'moodboard:show', 'moodboard:comments'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['profile:show', 'admin:show'])]
     private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups(['admin:show', 'admin:index'])]
     private array $roles = [];
 
     /**
@@ -36,19 +48,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $username = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
-
     /**
      * propriété status
      * si aucune valeur n'est persisté, ORM persistera 'active' par defaut
      * @var string|null
      */
     #[ORM\Column(length: 255, options: ['default' => 'active'])]
+    #[Groups(['admin:show', 'admin:index'])]
     private ?string $status = null;
+
+    /**
+     * @var Collection<int, MoodboardComment>
+     */
+    #[ORM\OneToMany(targetEntity: MoodboardComment::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $moodboardComments;
+
+    /**
+     * @var Collection<int, MoodboardLike>
+     */
+    #[ORM\OneToMany(targetEntity: MoodboardLike::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $moodboardLikes;
 
 
 
@@ -56,6 +75,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         //On le place dans le constructeurs, à la création l'entité user aura toujours le status active 
         $this->status = 'active';
+        $this->moodboardComments = new ArrayCollection();
+        $this->moodboardLikes = new ArrayCollection();
     }
 
 
@@ -132,29 +153,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
+    // public function getUsername(): ?string
+    // {
+    //     return $this->username;
+    // }
 
-    public function setUsername(string $username): static
-    {
-        $this->username = $username;
+    // public function setUsername(string $username): static
+    // {
+    //     $this->username = $username;
 
-        return $this;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): static
-    {
-        $this->name = $name;
-
-        return $this;
-    }
+    //     return $this;
+    // }
 
     public function getStatus(): ?string
     {
@@ -166,5 +175,43 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->status = $status;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, MoodboardComment>
+     */
+    public function getMoodboardComments(): Collection
+    {
+        return $this->moodboardComments;
+    }
+
+    public function addMoodboardComment(MoodboardComment $moodboardComment): static
+    {
+        if (!$this->moodboardComments->contains($moodboardComment)) {
+            $this->moodboardComments->add($moodboardComment);
+            $moodboardComment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMoodboardComment(MoodboardComment $moodboardComment): static
+    {
+        if ($this->moodboardComments->removeElement($moodboardComment)) {
+            // set the owning side to null (unless already changed)
+            if ($moodboardComment->getUser() === $this) {
+                $moodboardComment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MoodboardLike>
+     */
+    public function getMoodboardLikes(): Collection
+    {
+        return $this->moodboardLikes;
     }
 }

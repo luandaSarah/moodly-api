@@ -1,0 +1,223 @@
+<?php
+
+namespace App\Controller;
+
+use App\Dto\Filter\PaginationFilterDto;
+use App\Entity\UserInfo;
+use App\Entity\Relationship;
+use App\Repository\RelationshipRepository;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use App\Dto\Relationship\RelationshipCreateDto;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Mapper\Relationship\RelationshipCreateMapper;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
+
+#[Route('api', name: 'api_relationship_')]
+class RelationshipController extends AbstractController
+{
+    public function __construct(
+        private RelationshipRepository $relationshipRepository,
+        private EntityManagerInterface $em,
+        private RelationshipCreateMapper $relationshipCreateMapper,
+
+    ) {}
+
+    /**
+     * Check si l'user en paramettre est suivi par l'user connécté
+     *
+     *  @param \App\Entity\UserInfo $user
+     * @return JsonResponse
+     */
+    #[Route('/profile/following/{id}', name: 'profile_follow_user_check', methods: ['GET'])]
+    public function profileFollowUser(UserInfo $user): JsonResponse
+
+    {
+        $connectedUser = $this->getUser();
+
+        $relationship = $this->relationshipRepository->findOneBy([
+            'following' => $connectedUser,
+            'followed' => $user,
+        ]);
+
+        $relationship !== null ?
+            $data = [
+                'isFollowed' => $relationship !== null,
+                'relationshipId' => $relationship->getId()
+            ] :
+            $data = ['isFollowed' => $relationship !== null];
+
+
+        return $this->json(
+
+            $data,
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'followers:index'],
+            ],
+        );
+    }
+
+
+    /**
+     * Récupere le total de following et followers de l'user connécté
+     *
+     * @return JsonResponse
+     */
+    #[Route('/profile/follow/count', name: 'profile_follow_count', methods: ['GET'])]
+    public function profileFollowTotal(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        return $this->json(
+            [
+                'followers' => $this->relationshipRepository->countAll($user, 'followed'),
+                'following' => $this->relationshipRepository->countAll($user, 'following')
+            ],
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'followers:index'],
+            ],
+        );
+    }
+    /**
+     * Récupere les utilisateurs qui suive l'user connecté
+     *
+     * @return JsonResponse
+     */
+    #[Route('/profile/followers', name: 'profile_followers_index', methods: ['GET'])]
+    public function profileFollowers(
+        #[MapQueryString]
+        PaginationFilterDto $paginationDto,
+    ): JsonResponse {
+        $user = $this->getUser();
+
+        return $this->json(
+            $this->relationshipRepository->findPaginateFollowers($paginationDto, $user), //les utilisateurs qui following users donc users=followed
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'followers:index'],
+            ],
+        );
+    }
+
+    /**
+     * Récupere les utilisateurs que l'user connecté suit
+     *
+     * @return JsonResponse
+     */
+    #[Route('/profile/following', name: 'profile_following_index', methods: ['GET'])]
+    public function profileFollowingIndex(
+        #[MapQueryString]
+        PaginationFilterDto $paginationDto,
+    ): JsonResponse {
+        $user = $this->getUser();
+
+        return $this->json(
+            $this->relationshipRepository->findPaginateFollowing($paginationDto, $user), //les utilisateurs qui following users donc users=followed
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'following:index'],
+            ],
+        );
+    }
+
+    /**
+     * Récupere le total de following et followers de l'user en parametre
+     *
+     * @return JsonResponse
+     */
+    #[Route('/users/{id}/follow/count', name: 'users_follow_count', methods: ['GET'])]
+    public function usersFollowTotal(
+        UserInfo $user,
+    ): JsonResponse {
+
+        return $this->json(
+            [
+                'followers' => $this->relationshipRepository->countAll($user, 'followed'),
+                'following' => $this->relationshipRepository->countAll($user, 'following')
+            ],
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'followers:index'],
+            ],
+        );
+    }
+
+    /**
+     * Récupere les utilisateurs qui suive l'user en paramettre
+     * @param \App\Entity\UserInfo $user
+     * @return JsonResponse
+     */
+    #[Route('/users/{id}/followers', name: 'users_followers_index', methods: ['GET'])]
+
+    public function usersFollowersIndex(
+        UserInfo $user,
+        #[MapQueryString]
+        PaginationFilterDto $paginationDto,
+    ): JsonResponse {
+        return $this->json(
+            $this->relationshipRepository->findPaginateFollowers($paginationDto, $user), //les utilisateurs qui following users donc users=followed
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'followers:index'],
+            ],
+        );
+    }
+
+
+    /**
+     * Récupere les utilisateurs que l'user en paramettre suit
+     * @param \App\Entity\UserInfo $user
+     * @return JsonResponse
+     */
+    #[Route('/users/{id}/following', name: 'users_following_index', methods: ['GET'])]
+    public function usersFollowingIndex(
+        UserInfo $user,
+        #[MapQueryString]
+        PaginationFilterDto $paginationDto,
+    ): JsonResponse {
+        return $this->json(
+            $this->relationshipRepository->findPaginateFollowing($paginationDto, $user), //les utilisateurs qui following users donc users=followed
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'following:index'],
+            ],
+        );
+    }
+
+    #[Route('/follow', name: 'create', methods: ['POST'])]
+    public function create(
+        #[MapRequestPayload]
+        RelationshipCreateDto $dto
+    ): JsonResponse {
+        $userConnected = $this->getUser();
+        $relationship = $this->relationshipCreateMapper->map($dto, $userConnected);
+        $this->em->persist($relationship);
+        $this->em->flush();
+
+        return $this->json(
+            [
+                'id' => $relationship->getId(),
+            ],
+            Response::HTTP_CREATED,
+            context: [
+                'groups' => ['relationship:index'],
+            ],
+        );
+    }
+
+    #[Route('/follow/{id}', name: 'delete', methods: ['DELETE'])]
+    public function delete(Relationship $relationship): JsonResponse
+    {
+        $this->em->remove($relationship);
+        $this->em->flush();
+        return $this->json(
+            null,
+            Response::HTTP_NO_CONTENT
+        );
+    }
+}
