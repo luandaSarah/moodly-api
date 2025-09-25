@@ -3,7 +3,6 @@
 namespace App\DataFixtures;
 
 use Faker\Factory;
-use App\Entity\User;
 use Faker\Generator;
 use App\Entity\UserInfo;
 use App\Entity\Relationship;
@@ -22,63 +21,66 @@ class AppFixtures extends Fixture
         $this->faker = Factory::create('fr_FR');
     }
 
+    private function generateUsername($faker, &$usedUsernames, $firstName, $lastName): string
+    {
+        $adjectives = ["Lazy", "Crazy", "Happy", "Dark", "Silent", "Epic", "Funky", "Pixel", "Cool"];
+        $nouns = ["Panda", "Ninja", "Wizard", "Gamer", "Queen", "Dreamer", "Skater", "Traveler", "Cat"];
+
+        do {
+            $pattern = $faker->randomElement([
+                strtolower($firstName) . "." . strtolower($lastName),         // ex: marie.dupont
+                strtolower(substr($firstName, 0, 1)) . strtolower($lastName), // ex: mdupont
+                "{adj}{noun}{number}",                                       // ex: LazyPanda42
+                "{first}_{noun}{number}",                                    // ex: lucas_cat99
+                "iLove_{noun}",                                              // ex: iLove_Ninja
+            ]);
+
+            $username = str_replace(
+                ["{adj}", "{noun}", "{number}", "{first}"],
+                [
+                    $faker->randomElement($adjectives),
+                    $faker->randomElement($nouns),
+                    $faker->numberBetween(1, 999),
+                    strtolower($firstName),
+                ],
+                $pattern
+            );
+        } while (in_array($username, $usedUsernames));
+
+        $usedUsernames[] = $username;
+        return $username;
+    }
+
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
-
-        //Fixtures ADMIN USER
-        $userAdmin = new UserInfo();
-
-        $userAdmin
-            // ->setName('Admin')
-            ->setEmail('admin@email.fr')
-            ->setRoles(['ROLE_ADMIN'])
-            ->setPassword(
-                $this->passwordHasher->hashPassword(
-                    $userAdmin,
-                    '123Admin!'
-                )
-            )
-            ->setPseudo('admin1')
-            ->setName('Admin Admin')
-            ->setBio($this->faker->sentence())
-        ;
-
-        $manager->persist($userAdmin);
-
-        //Fixtures 30 USERS
-        $fakeUsers = [];
+        $users = [];
+        $usedUsernames = [];
 
         for ($i = 0; $i < 30; $i++) {
+            $firstName = $this->faker->firstName();
+            $lastName  = $this->faker->lastName();
 
-            $fakeUser = new UserInfo();
+            $username = $this->generateUsername($this->faker, $usedUsernames, $firstName, $lastName);
+            $email = preg_replace('/[^a-z0-9._]/', '', strtolower($username)) . "@example.com";
 
-            $fakeUser
-                ->setPseudo($this->faker->unique()->userName())
-                ->setName($this->faker->name())
-                ->setEmail($this->faker->unique()->email())
-                ->setStatus($this->faker->randomElement(['active', 'banned', 'deactivated']))
-                ->setPassword(
-                    $this->passwordHasher->hashPassword(
-                        $fakeUser,
-                        'user'
-                    )
-                )
-                ->setBio($this->faker->sentence())
-            ;
+            $user = new UserInfo();
+            $user
+                ->setName("$firstName $lastName")
+                ->setPseudo($username)
+                ->setEmail($email)
+                ->setPassword($this->passwordHasher->hashPassword($user, '123User!'))
+                ->setBio($this->faker->sentence(10));
 
-            $manager->persist($fakeUser);
-
-            $fakeUsers[] = $fakeUser;
+            $users[] = $user;
+            $manager->persist($user);
         }
 
-        foreach ($fakeUsers as $following) {
+        foreach ($users as $following) {
             // Chaque user suit entre 1 et 5 autres users
-            $numberOfFollows = rand(1, 5);
+            $numberOfFollows = rand(2, 29);
             $follows = [];
             for ($i = 0; $i < $numberOfFollows; $i++) {
-                $followed = $this->faker->randomElement($fakeUsers);
+                $followed = $this->faker->randomElement($users);
 
                 //un user ne peux pas suivre deux fois le meme user 
                 if (!in_array($followed, $follows)) {
@@ -95,6 +97,8 @@ class AppFixtures extends Fixture
                 }
             }
         }
+
+
 
         $manager->flush();
     }

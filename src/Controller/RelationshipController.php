@@ -61,6 +61,28 @@ class RelationshipController extends AbstractController
         );
     }
 
+
+    /**
+     * Récupere le total de following et followers de l'user connécté
+     *
+     * @return JsonResponse
+     */
+    #[Route('/profile/follow/count', name: 'profile_follow_count', methods: ['GET'])]
+    public function profileFollowTotal(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        return $this->json(
+            [
+                'followers' => $this->relationshipRepository->countAll($user, 'followed'),
+                'following' => $this->relationshipRepository->countAll($user, 'following')
+            ],
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'followers:index'],
+            ],
+        );
+    }
     /**
      * Récupere les utilisateurs qui suive l'user connecté
      *
@@ -81,7 +103,6 @@ class RelationshipController extends AbstractController
             ],
         );
     }
-
 
     /**
      * Récupere les utilisateurs que l'user connecté suit
@@ -104,6 +125,27 @@ class RelationshipController extends AbstractController
         );
     }
 
+    /**
+     * Récupere le total de following et followers de l'user en parametre
+     *
+     * @return JsonResponse
+     */
+    #[Route('/users/{id}/follow/count', name: 'users_follow_count', methods: ['GET'])]
+    public function usersFollowTotal(
+        UserInfo $user,
+    ): JsonResponse {
+
+        return $this->json(
+            [
+                'followers' => $this->relationshipRepository->countAll($user, 'followed'),
+                'following' => $this->relationshipRepository->countAll($user, 'following')
+            ],
+            Response::HTTP_OK,
+            context: [
+                'groups' => ['relationship:index', 'followers:index'],
+            ],
+        );
+    }
 
     /**
      * Récupere les utilisateurs qui suive l'user en paramettre

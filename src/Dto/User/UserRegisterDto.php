@@ -9,12 +9,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(
     fields: ['pseudo'],
     entityClass: UserInfo::class,
-    message: 'Ce pseudo est déjà pris'
+    message: 'Ce pseudo  n\'est plus disponible'
 )]
 #[UniqueEntity(
     fields: ['email'],
     entityClass: UserInfo::class,
-    message: 'Ce mail est déjà pris'
+    message: 'Cet email n\'est plus disponible'
 )]
 class UserRegisterDto
 {

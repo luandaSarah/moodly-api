@@ -22,7 +22,7 @@ class MoodboardCreateDto
 
 
         #[Assert\NotBlank(
-            message: 'Veuillez entrer un titre',
+            message: 'Veuillez choisir une couleur',
         )]
         #[Assert\Length(
             min: 3,

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use App\Entity\Moodboard;
+use App\Entity\Relationship;
 use App\Dto\Filter\PaginationFilterDto;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -18,10 +19,20 @@ class MoodboardRepository extends ServiceEntityRepository
         parent::__construct($registry, Moodboard::class);
     }
 
-    public function countAll(?User $user = null): int
+    public function countAll(?User $user = null, bool $onlyFollowing = false): int
     {
 
-        if ($user) {
+
+        if ($user && $onlyFollowing) {
+            $query = $this->createQueryBuilder('m')
+                ->select('COUNT(m.id)')
+                ->join('m.user',  'u')
+                ->join(Relationship::class, 'r', 'WITH', 'r.followed = u')
+                ->andWhere('r.following = :currentUser')
+                ->setParameter('currentUser', $user)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } else if ($user) {
             $query =   $this->createQueryBuilder('m')
                 ->select('COUNT(m.id)')
                 ->andWhere("m.user = :user")
@@ -46,23 +57,37 @@ class MoodboardRepository extends ServiceEntityRepository
      * @param \App\Dto\Filter\PaginationFilterDto $filter
      * @return array{items: mixed, meta: array{pages: float, total: mixed}}
      */
-    public function findPaginate(PaginationFilterDto $filter, ?User $user = null): array
+    public function findPaginate(PaginationFilterDto $filter, ?User $user = null, bool $onlyFollowing = false): array
     {
 
         $offset = ($filter->getPage() - 1) * $filter->getLimit();
-        if ($user) {
+
+        if ($user && $onlyFollowing) {
+            $query = $this->createQueryBuilder('m')
+                ->join('m.user',  'u')
+                ->join(Relationship::class, 'r', 'WITH', 'r.followed = u')
+                ->andWhere('r.following = :currentUser')
+                ->setParameter('currentUser', $user)
+                ->setMaxResults($filter->getLimit())
+                ->setFirstResult($offset)
+                ->orderBy('m.createdAt', 'DESC');
+            $total = $this->countAll($user, $onlyFollowing);
+        } else if ($user) {
             $query = $this->createQueryBuilder('m')
                 ->setMaxResults($filter->getLimit())
                 ->setFirstResult($offset)
                 ->andWhere('m.user = :user')
-                ->setParameter('user', $user);
+                ->setParameter('user', $user)
+                ->orderBy('m.createdAt', 'DESC');
+
             $total = $this->countAll($user);
         } else {
 
 
             $query = $this->createQueryBuilder('m')
                 ->setMaxResults($filter->getLimit())
-                ->setFirstResult($offset);
+                ->setFirstResult($offset)
+                ->orderBy('m.createdAt', 'DESC');
             $total = $this->countAll();
         }
 
