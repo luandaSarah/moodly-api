@@ -1,6 +1,7 @@
 nelmio_cors:
   defaults:
-    allow_origin: ["%env(CORS_ALLOW_ORIGIN)%"]
+    allow_origin:
+      ["https://localhost:3000", "https://moodly.cloud", "https://127.0.0.1"]
     allow_methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
     allow_headers: ["Content-Type", "Authorization"]
     expose_headers: ["Link"]
@@ -8,7 +9,8 @@ nelmio_cors:
     allow_credentials: true
   paths:
     "^/api/":
-      allow_origin: ["%env(CORS_ALLOW_ORIGIN)%"]
+      allow_origin:
+        ["https://localhost:3000", "https://moodly.cloud", "https://127.0.0.1"]
       allow_methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
       allow_headers: ["Content-Type", "Authorization"]
       expose_headers: ["Link"]
