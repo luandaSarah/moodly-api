@@ -63,7 +63,7 @@ class ImageController extends AbstractController
             throw new \Exception("Format non supporté");
       }
 
-      $temporyImg = sys_get_temp_dir() . '\\' . uniqid() . '.webp';
+      $temporyImg = sys_get_temp_dir() . '/' . uniqid() . '.webp';
 
 
       $toWebp = imagewebp($image, $temporyImg, 80); //retourne un boolean si ca à marché ou pas 
@@ -114,7 +114,7 @@ class ImageController extends AbstractController
          );
       }
       //convert img to webp
-      // $image = $this->convertImgToWebp($image);
+      $image = $this->convertImgToWebp($image);
 
 
 
@@ -191,7 +191,7 @@ class ImageController extends AbstractController
             }
 
             //convert img to webp
-            // $image = $this->convertImgToWebp($image);
+            $image = $this->convertImgToWebp($image);
 
             $imageUrl =  $s3Service->upload($image, 'moodboards');
             $moodboardImage = new MoodboardImage();
