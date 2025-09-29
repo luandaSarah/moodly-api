@@ -114,7 +114,7 @@ class ImageController extends AbstractController
          );
       }
       //convert img to webp
-      $image = $this->convertImgToWebp($image);
+      // $image = $this->convertImgToWebp($image);
 
 
 
@@ -134,7 +134,8 @@ class ImageController extends AbstractController
 
          $avatarUrl = $s3Service->upload($image, 'avatar');
          $userAvatar = new UserAvatar();
-         $userAvatar->setAvatarUrl($avatarUrl);
+         // $userAvatar->setAvatarUrl($avatarUrl);
+         $userAvatar->setAvatarUrl("toto.png");
          $userAvatar->setUser($user);
          $this->em->persist($userAvatar);
          $this->em->flush();
@@ -170,6 +171,8 @@ class ImageController extends AbstractController
       }
 
       $images = $request->files->all('images');
+      dd($request->files->all(), $request->request->all());
+
 
       if (count($images) <= 0) {
          return $this->json(['error' => 'Aucune image fournie.'], Response::HTTP_BAD_REQUEST);
