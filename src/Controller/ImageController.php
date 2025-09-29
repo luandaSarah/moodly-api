@@ -134,8 +134,7 @@ class ImageController extends AbstractController
 
          $avatarUrl = $s3Service->upload($image, 'avatar');
          $userAvatar = new UserAvatar();
-         // $userAvatar->setAvatarUrl($avatarUrl);
-         $userAvatar->setAvatarUrl("toto.png");
+         $userAvatar->setAvatarUrl($avatarUrl);
          $userAvatar->setUser($user);
          $this->em->persist($userAvatar);
          $this->em->flush();
@@ -171,7 +170,6 @@ class ImageController extends AbstractController
       }
 
       $images = $request->files->all('images');
-      dd($request->files->all(), $request->request->all());
 
 
       if (count($images) <= 0) {
@@ -193,7 +191,7 @@ class ImageController extends AbstractController
             }
 
             //convert img to webp
-            $image = $this->convertImgToWebp($image);
+            // $image = $this->convertImgToWebp($image);
 
             $imageUrl =  $s3Service->upload($image, 'moodboards');
             $moodboardImage = new MoodboardImage();
