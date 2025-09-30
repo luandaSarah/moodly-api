@@ -176,6 +176,7 @@ class ImageController extends AbstractController
          return $this->json(['error' => 'Aucune image fournie.'], Response::HTTP_BAD_REQUEST);
       }
 
+      //Evolutif pour l'ajout et modification d'images 
       $existingMoodboardImg = count($moodboard->getMoodboardImages());
       if ($existingMoodboardImg + count($images) > 4) {
          return $this->json(['error' => 'Un moodboard ne peut pas contenir plus de 4 images.'], Response::HTTP_BAD_REQUEST);
